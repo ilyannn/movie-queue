@@ -1,5 +1,6 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/core/supabase/server";
+
+import { redirect } from 'next/navigation';
+import { createClient } from '@/lib/core/supabase/server';
 
 export default async function MovieLayout({
   children,
@@ -14,7 +15,7 @@ export default async function MovieLayout({
   const session = true;
 
   if (!session) {
-    redirect("/login");
+    redirect('/login');
   }
 
   return <section>{children}</section>;

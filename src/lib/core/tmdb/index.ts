@@ -1,7 +1,7 @@
 import { CONFIG } from "./config";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
-const IMAGE_BASE_URL = URL.parse(CONFIG.images.secure_base_url)!;
+const IMAGE_BASE_URL = CONFIG.images.secure_base_url;
 
 export type TMDBMovieID = number & { __TMDBMovieID: never };
 export type TMDBSeriesID = number & { __TMDBSeriesID: never };
@@ -25,10 +25,10 @@ export type IMDBMovieID = string & { __IMDBMovieID: never };
 export type DurationInMinutes = number & { __DurationInMinutes: never };
 
 // https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
-export type ISOLanguageCode = string & { __languageCode: never };
+export type TMDBLanguageCode = string & { __languageCode: never };
 
 // https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-export type ISOCountryCode = string & { __countryCode: never };
+export type TMDBCountryCode = string & { __countryCode: never };
 
 // https://en.wikipedia.org/wiki/ISO_8601
 export type ISODate = string & { __ISODate: never };
@@ -49,13 +49,13 @@ interface ProductionCompany {
 }
 
 interface ProductionCountry {
-  iso_3166_1: ISOCountryCode;
+  iso_3166_1: TMDBCountryCode;
   name: string;
 }
 
 interface SpokenLanguage {
   english_name: string;
-  iso_639_1: ISOLanguageCode;
+  iso_639_1: TMDBLanguageCode;
   name: string;
 }
 
@@ -81,7 +81,7 @@ interface TMDBMovieDetails {
   budget: number;
   homepage: string;
   imdb_id: IMDBMovieID;
-  original_language: ISOLanguageCode;
+  original_language: TMDBLanguageCode;
   popularity: number;
   production_companies: ProductionCompany[];
   production_countries: ProductionCountry[];
@@ -141,7 +141,7 @@ export class TMDBClient {
 
   async getMovieDetails(
     movieId: TMDBMovieID,
-    language: ISOLanguageCode | undefined = undefined
+    language: TMDBLanguageCode | undefined = undefined
   ): Promise<TMDBMovieDetails> {
     return this.fetch<TMDBMovieDetails>(["movie", movieId], { language });
   }
@@ -149,9 +149,9 @@ export class TMDBClient {
   getImageURL(
     path: TMDBImagePath | null,
     size: TMDBImageSize | "original" = "original"
-  ): URL | null {
+  ): string | null {
     if (!path) return null;
-    return new URL(`${size}/${path}`, IMAGE_BASE_URL);
+    return [IMAGE_BASE_URL, size, path].join("/");
   }
 }
 

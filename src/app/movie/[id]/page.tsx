@@ -1,14 +1,17 @@
+import type { Metadata, ResolvingMetadata } from "next";
 import { getMovieDetails } from "@/lib/core";
+import Link from "next/link";
 import { Suspense } from "react";
+import { Tag } from "@/components/ui/tag";
+import { HStack, Image } from "@chakra-ui/react";
 
-export default async function MovieDetailsPage({
-  params,
-}: {
+type Props = {
   params: Promise<{ id: number }>;
-}) {
+};
+
+export default async function MovieDetailsPage({ params }: Props) {
   return (
     <div>
-      <h1>Movie Details</h1>
       <Suspense fallback={<p>Loading...</p>}>
         <MovieDetails params={params} />
       </Suspense>
@@ -16,35 +19,80 @@ export default async function MovieDetailsPage({
   );
 }
 
-async function MovieDetails({ params }: { params: Promise<{ id: number }> }) {
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
   const { id } = await params;
   const movie = await getMovieDetails(id);
 
+  // optionally access and extend (rather than replace) parent metadata
+  const previousImages = (await parent).openGraph?.images || [];
+  const newImages = [movie.poster_small_url].filter((u) => u !== null) as [
+    string
+  ];
+
+  return {
+    title: `${movie.language_title} (${movie.release_year}) - Movie Queue`,
+    openGraph: {
+      images: [...newImages, ...previousImages],
+    },
+  };
+}
+
+async function MovieDetails({ params }: Props) {
+  const { id } = await params;
+  const movie = await getMovieDetails(id);
+  const fullTitle = `${movie.language_title} (${movie.release_year})`;
+
   return (
-    <div className="p-4 max-w-3xl mx-auto bg-white rounded shadow-md">
-      <div className="mb-4">
-        <h2 className="text-xl font-bold">{movie.language_title || movie.original_title}</h2>
-      </div>
-      <div className="flex flex-col md:flex-row gap-4">
-        <img
-          className="w-full md:w-1/3 rounded"
-          src={movie.poster_url?.toString() || ""}
-          alt={movie.original_title}
-        />
-        <div className="flex-1">
-          <p className="mb-2 font-semibold">Release Year: {movie.release_year}</p>
-          <p className="mb-2 font-semibold">Runtime: {movie.runtime_minutes} min</p>
-          <p className="mb-2 italic">{movie.overview}</p>
-          <p className="mb-2">IMDB ID: {movie.imdb_id}</p>
-          <p className="mb-2">Spoken Languages:</p>
-          <ul className="list-disc list-inside">
-            {movie.spoken_languages?.map((lang, idx) => (
-              <li key={idx}>{lang.name}</li>
-            ))}
-          </ul>
-          {/* Suggestions: Display more info like rating, cast, or similar movies */}
+    <>
+      {movie.backdrop_url && (
+        <div className="w-full h-48 md:h-64 relative overflow-hidden">
+          <img
+            src={movie.backdrop_url}
+            alt={`${fullTitle} backdrop`}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent" />
+        </div>
+      )}
+      <div className="p-4 max-w-3xl mx-auto bg-white rounded shadow-md">
+        <div className="mb-4">
+          <h2 className="text-xl font-bold">{fullTitle}</h2>
+          <h3 className="text-md font-semibold text-gray-500">
+            <HStack gap={2}>
+              {movie.original_title === movie.language_title
+                ? null
+                : movie.original_title}
+              {movie.spoken_languages?.map((lang) => (
+                <Tag key={lang.name}>{lang.name}</Tag>
+              ))}
+            </HStack>
+          </h3>
+        </div>
+        <div className="flex flex-col md:flex-row gap-4">
+          <img
+            className="w-full md:w-1/3 rounded"
+            src={movie.poster_url || ""}
+            alt={fullTitle}
+          />
+          <div className="flex-1">
+            <p className="mb-2 font-semibold">
+              Runtime: {movie.runtime_minutes} min
+            </p>
+            <p className="mb-2 italic">{movie.overview}</p>
+            {movie.imdb_url && (
+              <p className="mb-2">
+                <Link href={movie.imdb_url}>
+                  <Image src="/icons/imdb.png" alt="IMDB logo" h={8} />
+                </Link>
+              </p>
+            )}
+            {/* Suggestions: Display more info like rating, cast, or similar movies */}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
