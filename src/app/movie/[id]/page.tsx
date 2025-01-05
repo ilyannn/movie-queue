@@ -23,7 +23,7 @@ async function MovieDetails({ params }: { params: Promise<{ id: number }> }) {
   return (
     <p>
       Movie ID: {id}
-      <br /> Title: {movie.original_title} <br /> Release Year:{" "}
+      Title: {movie.original_title} Release Year:{" "}
       {movie.release_date.slice(0, 4)}
     </p>
   );
