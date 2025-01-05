@@ -2,8 +2,10 @@ import type { Metadata, ResolvingMetadata } from "next";
 import { getMovieDetails } from "@/lib/core";
 import Link from "next/link";
 import { Suspense } from "react";
+import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
-import { HStack, Image } from "@chakra-ui/react";
+import { HStack } from "@chakra-ui/react";
+import Image from "next/image";
 
 type Props = {
   params: Promise<{ id: number }>;
@@ -33,7 +35,7 @@ export async function generateMetadata(
   ];
 
   return {
-    title: `${movie.language_title} (${movie.release_year}) - Movie Queue`,
+    title: `${movie.language_title} (${movie.release_year}) | Movie Queue`,
     openGraph: {
       images: [...newImages, ...previousImages],
     },
@@ -82,13 +84,26 @@ async function MovieDetails({ params }: Props) {
               Runtime: {movie.runtime_minutes} min
             </p>
             <p className="mb-2 italic">{movie.overview}</p>
-            {movie.imdb_url && (
-              <p className="mb-2">
+            <HStack gap={4} h={8} align={"center"} justify={"flex-start"}>
+              {movie.imdb_url && (
                 <Link href={movie.imdb_url}>
-                  <Image src="/icons/imdb.png" alt="IMDB logo" h={8} />
+                  <Image
+                    src="/icons/imdb.png"
+                    alt="IMDB logo"
+                    className="object-contain"
+                    height={40}
+                    width={60}
+                    priority
+                  />
                 </Link>
-              </p>
-            )}
+              )}
+              <Button colorPalette="teal" variant="outline">
+                + My Queue
+              </Button>
+              <Button variant={"outline"} colorScheme={"blue"}>
+                + Group Queue
+              </Button>
+            </HStack>
             {/* Suggestions: Display more info like rating, cast, or similar movies */}
           </div>
         </div>
