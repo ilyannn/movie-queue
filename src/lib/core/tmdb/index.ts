@@ -1,8 +1,24 @@
-const BASE_URL = "https://api.themoviedb.org/3";
+import { CONFIG } from "./config";
+
+const API_BASE_URL = "https://api.themoviedb.org/3";
+const IMAGE_BASE_URL = URL.parse(CONFIG.images.secure_base_url)!;
 
 export type TMDBMovieID = number & { __TMDBMovieID: never };
 export type TMDBSeriesID = number & { __TMDBSeriesID: never };
-export type TMDBImageSize = string & { __TMDBImageSize: never };
+
+export type TMDBBackdropImageSize =
+  (typeof CONFIG.images.backdrop_sizes)[number];
+export type TMDBLogoImageSize = (typeof CONFIG.images.logo_sizes)[number];
+export type TMDBPosterImageSize = (typeof CONFIG.images.poster_sizes)[number];
+export type TMDBProfileImageSize = (typeof CONFIG.images.profile_sizes)[number];
+export type TMDBStillImageSize = (typeof CONFIG.images.still_sizes)[number];
+export type TMDBImageSize =
+  | TMDBBackdropImageSize
+  | TMDBLogoImageSize
+  | TMDBPosterImageSize
+  | TMDBProfileImageSize
+  | TMDBStillImageSize;
+
 export type TMDBImagePath = string & { __TMDBImagePath: never };
 
 export type IMDBMovieID = string & { __IMDBMovieID: never };
@@ -17,7 +33,7 @@ export type ISOCountryCode = string & { __countryCode: never };
 // https://en.wikipedia.org/wiki/ISO_8601
 export type ISODate = string & { __ISODate: never };
 
-export const convertToTDBMovieID = (id: string | number): TMDBMovieID => {
+export const convertToTMDBMovieID = (id: string | number): TMDBMovieID => {
   const n = Number(id);
   if (isNaN(n)) {
     throw new Error("Invalid IMDB ID");
@@ -48,7 +64,7 @@ interface GenreInfo {
   name: string;
 }
 
-interface MovieDetails {
+interface TMDBMovieDetails {
   id: TMDBMovieID;
   title: string;
   original_title: string;
@@ -98,7 +114,7 @@ export class TMDBClient {
     routing: TMDBRoute,
     searchParams: Record<string, string | undefined> = {}
   ): Promise<T> {
-    const url = new URL([3, ...routing].join("/"), BASE_URL);
+    const url = new URL([3, ...routing].join("/"), API_BASE_URL);
     for (const key in searchParams) {
       if (searchParams[key] !== undefined) {
         url.searchParams.set(key, searchParams[key]);
@@ -126,16 +142,16 @@ export class TMDBClient {
   async getMovieDetails(
     movieId: TMDBMovieID,
     language: ISOLanguageCode | undefined = undefined
-  ): Promise<MovieDetails> {
-    return this.fetch<MovieDetails>(["movie", movieId], { language });
+  ): Promise<TMDBMovieDetails> {
+    return this.fetch<TMDBMovieDetails>(["movie", movieId], { language });
   }
 
-  getImageUrl(
+  getImageURL(
     path: TMDBImagePath | null,
     size: TMDBImageSize | "original" = "original"
-  ): string | null {
+  ): URL | null {
     if (!path) return null;
-    return `https://image.tmdb.org/t/p/${size}${path}`;
+    return new URL(`${size}/${path}`, IMAGE_BASE_URL);
   }
 }
 
