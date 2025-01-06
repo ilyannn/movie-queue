@@ -1,15 +1,19 @@
 import type { Metadata, ResolvingMetadata } from "next";
-import { getMovieDetails } from "@/lib/core";
+import { getMovieDetails, addToMovieQueue } from "@/lib/core";
 import Link from "next/link";
-import { Suspense } from "react";
-import { Button } from "@/components/ui/button";
+import React, { Suspense, useCallback } from "react";
 import { Tag } from "@/components/ui/tag";
 import { HStack } from "@chakra-ui/react";
 import Image from "next/image";
+import { QueueID } from "@/lib/core/types";
+import { AddToQueueButton } from "@/components/AddToQueueButton";
 
 type Props = {
   params: Promise<{ id: number }>;
 };
+
+const HARDCODED_MY_QUEUE_ID = 1 as QueueID;
+const HARDCODED_GROUP_QUEUE_ID = 2 as QueueID;
 
 export default async function MovieDetailsPage({ params }: Props) {
   return (
@@ -42,7 +46,7 @@ export async function generateMetadata(
   };
 }
 
-async function MovieDetails({ params }: Props) {
+const MovieDetails: React.FC<Props> = async ({ params }: Props) => {
   const { id } = await params;
   const movie = await getMovieDetails(id);
   const fullTitle = `${movie.language_title} (${movie.release_year})`;
@@ -97,12 +101,18 @@ async function MovieDetails({ params }: Props) {
                   />
                 </Link>
               )}
-              <Button colorPalette="teal" variant="outline">
-                + My Queue
-              </Button>
-              <Button variant={"outline"} colorScheme={"blue"}>
-                + Group Queue
-              </Button>
+              <AddToQueueButton
+                queueId={HARDCODED_MY_QUEUE_ID}
+                queueName="My Queue"
+                movieId={movie.id}
+                isAdded={false}
+              />
+              <AddToQueueButton
+                queueId={HARDCODED_GROUP_QUEUE_ID}
+                queueName="Group Queue"
+                movieId={movie.id}
+                isAdded={false}
+              />
             </HStack>
             {/* Suggestions: Display more info like rating, cast, or similar movies */}
           </div>
@@ -110,4 +120,4 @@ async function MovieDetails({ params }: Props) {
       </div>
     </>
   );
-}
+};

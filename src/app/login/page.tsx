@@ -1,6 +1,6 @@
 "use client";
 
-import { supabase } from "@/lib/core/supabase/client";
+import { supabase } from "@/lib/services/supabase/client";
 import { LoginForm } from "@/components/login-form";
 import { useRouter } from "next/navigation";
 import { FormEvent } from "react";
