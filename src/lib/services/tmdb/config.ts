@@ -1,5 +1,5 @@
 export const CONFIG = {
-  change_keys: [
+  change_ids: [
     "adult",
     "air_date",
     "also_known_as",
@@ -33,7 +33,7 @@ export const CONFIG = {
     "overview",
     "parts",
     "place_of_birth",
-    "plot_keywords",
+    "plot_idwords",
     "production_code",
     "production_companies",
     "production_countries",

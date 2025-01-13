@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import "./globals.css";
-import { Provider } from "@/components/ui/provider";
+//import "./globals.css";
 import ClientProvider from "./ClientProvider";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "Movie Queue",
@@ -26,7 +26,12 @@ export default function RootLayout({
         /> */}
       </head>
       <body>
-        <ClientProvider>{children}</ClientProvider>
+        {/* <I18nextProvider i18n={i18n}> */}
+        <ClientProvider>
+          {children}
+          <Toaster />
+        </ClientProvider>
+        {/* </I18nextProvider> */}
       </body>
     </html>
   );

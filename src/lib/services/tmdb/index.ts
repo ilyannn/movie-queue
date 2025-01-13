@@ -30,6 +30,8 @@ export type TMDBLanguageCode = string & { __languageCode: never };
 // https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 export type TMDBCountryCode = string & { __countryCode: never };
 
+export const TMDBCountryCodeNotSelected = "" as TMDBCountryCode;
+
 // https://en.wikipedia.org/wiki/ISO_8601
 export type ISODate = string & { __ISODate: never };
 
@@ -39,6 +41,12 @@ export const convertToTMDBMovieID = (id: string | number): TMDBMovieID => {
     throw new Error("Invalid IMDB ID");
   }
   return n as TMDBMovieID;
+};
+
+export const convertToTMDBLanguageCodes = (
+  languages: string
+): TMDBLanguageCode[] => {
+  return languages.split(" ").filter((x) => x != "") as TMDBLanguageCode[];
 };
 
 interface ProductionCompany {
@@ -92,6 +100,23 @@ interface TMDBMovieDetails {
   video: boolean;
 }
 
+interface TMDBMovieTranslation {
+  iso_3166_1: TMDBCountryCode;
+  iso_639_1: TMDBLanguageCode;
+  name: string;
+  english_name: string;
+  data: {
+    title: string;
+    overview: string;
+    homepage: string;
+    tagline: string;
+  };
+}
+
+type TMDBMovieTranslations = {
+  translations: TMDBMovieTranslation[];
+};
+
 type TMDBMovieRoutes = [] | ["translations"];
 type TMDBSearchRoutes = ["movie"];
 type TMDBRoute =
@@ -141,9 +166,21 @@ export class TMDBClient {
 
   async getMovieDetails(
     movieId: TMDBMovieID,
-    language: TMDBLanguageCode | undefined = undefined
+    language: TMDBLanguageCode | null = null
   ): Promise<TMDBMovieDetails> {
-    return this.fetch<TMDBMovieDetails>(["movie", movieId], { language });
+    const params = language ? { language: language } : {};
+    return this.fetch<TMDBMovieDetails>(["movie", movieId], params);
+  }
+
+  async getMovieTranslations(
+    movieId: TMDBMovieID
+  ): Promise<TMDBMovieTranslation[]> {
+    const result = await this.fetch<TMDBMovieTranslations>([
+      "movie",
+      movieId,
+      "translations",
+    ]);
+    return result.translations;
   }
 
   getImageURL(

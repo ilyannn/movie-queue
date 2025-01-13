@@ -6,14 +6,15 @@ import { Button } from "@chakra-ui/react";
 import React, { useCallback } from "react";
 
 interface AddToQueueButtonProps {
+  isPersonal: boolean;
   queueId: QueueID;
   queueName: string;
   movieId: MovieID;
   isAdded: boolean;
 }
 
-// Move interactive parts to a client component
 export const AddToQueueButton: React.FC<AddToQueueButtonProps> = ({
+  isPersonal,
   queueId,
   queueName,
   movieId,
@@ -23,5 +24,6 @@ export const AddToQueueButton: React.FC<AddToQueueButtonProps> = ({
     //    addToMovieQueue(movieId, queueId);
   }, [movieId, queueId]);
 
-  return <Button onClick={() => handleAddToQueue()}>Add to {queueName}</Button>;
+  const name = isPersonal ? "My Queue" : queueName;
+  return <Button onClick={() => handleAddToQueue()}>Add to {name}</Button>;
 };

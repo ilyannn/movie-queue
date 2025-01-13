@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/services/supabase/server";
 
 export default async function MovieLayout({
   children,

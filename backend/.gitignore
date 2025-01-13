@@ -1,0 +1,24 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+*.egg-info
+# MyPy cache
+.mypy_cache/
+# Environments
+.venv/
+venv/
+env/
+# Tests coverage
+.coverage
+coverage.xml
+htmlcov/
+# Python-specific logs
+pytestdebug.log
+# Environment variables
+.env
